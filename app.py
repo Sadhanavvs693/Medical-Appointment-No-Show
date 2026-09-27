@@ -314,3 +314,4 @@ if st.button("Predict No-Show"):
         f"**Attended probability:** "
         f"{attended_probability * 100:.2f}%"
     )
+    
