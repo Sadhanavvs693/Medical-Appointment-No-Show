@@ -1,146 +1,122 @@
-# Medical Appointment No-Show Prediction
+# Medical Appointment No-Show Prediction & Business Analytics
 
-## 📌 Project Overview
+## Project Overview
 
-This project predicts whether a patient is likely to **attend or miss a medical appointment** using machine learning.
+This project analyzes medical appointment data to understand and predict patient no-shows and translate the findings into practical healthcare business use cases.
 
-The project includes data cleaning, exploratory data analysis (EDA), statistical analysis, feature engineering, machine learning model development, evaluation, and a Streamlit prediction application.
+The project combines:
+
+* Exploratory Data Analysis (EDA)
+* Data cleaning and feature engineering
+* Statistical analysis and hypothesis testing
+* Machine Learning classification
+* Time-series forecasting
+* Business analytics
+* Streamlit deployment
+
+The goal is to help healthcare organizations understand appointment attendance patterns, identify higher-risk appointments, and support better planning of staffing, resources, and appointment capacity.
 
 ---
 
-## 🎯 Project Objective
+## Dataset
 
-The main objective is to identify patterns associated with appointment no-shows and build a machine learning model that can estimate the probability of a patient missing an appointment.
+The dataset contains **109,593 original records and 26 columns**.
 
-The prediction can help healthcare organizations identify appointments that may require additional attention or follow-up.
+After removing 36 exact duplicate records, the analysis contains **109,557 appointments**.
 
----
-
-## 📊 Dataset
-
-The dataset contains **109,593 appointment records** with information related to:
+The dataset includes information related to:
 
 * Patient demographics
 * Medical conditions
 * Appointment timing
 * Appointment specialty
+* Location
 * Weather conditions
 * SMS reminders
-* Appointment date
-* No-show status
+* Appointment attendance
 
-After removing 36 exact duplicate records, the cleaned dataset contained **109,557 records**.
+> The raw dataset is not publicly redistributed because it was provided for project/learning purposes.
+
+---
+
+## Project Workflow
+
+```text
+Raw Medical Appointment Data
+            ↓
+Data Cleaning
+            ↓
+Exploratory Data Analysis
+            ↓
+Feature Engineering
+            ↓
+Statistical Analysis
+            ↓
+Machine Learning
+            ↓
+No-Show Risk Prediction
+            ↓
+Time-Series Forecasting
+            ↓
+7 Healthcare Business Cases
+            ↓
+Streamlit Application
+```
+
+---
+
+# Machine Learning — No-Show Prediction
 
 ### Target Variable
 
-`no_show`
+The target variable is `no_show`.
 
-* `no` → Patient attended
-* `yes` → Patient did not attend
+It was converted into a numerical binary target:
 
-The target distribution in the cleaned dataset was:
+```text
+no → 0  (Attended)
+yes → 1 (No-show)
+```
 
-* Attended: 68.21%
-* No-show: 31.79%
+### Class Distribution
 
----
+| Outcome  | Appointments | Percentage |
+| -------- | -----------: | ---------: |
+| Attended |       74,726 |     68.21% |
+| No-show  |       34,831 |     31.79% |
 
-## 🔍 Data Preparation
+### Feature Engineering
 
-The following preprocessing steps were performed:
+Important engineered features include:
 
-* Removed exact duplicate records
-* Handled missing categorical values using `"Unknown"`
-* Handled missing age values using median imputation
-* Created an `age_missing` indicator
-* Filled missing weather values using median imputation
-* Converted appointment dates into datetime format
-* Created date-based features
-* Created time-of-day categories
-* Created age groups
-* Encoded the target variable numerically
-* Removed the high-cardinality `place` column from modeling
-* Removed the original appointment date from modeling after extracting useful date features
+* `age_missing`
+* `appointment_year`
+* `appointment_month`
+* `appointment_day`
+* `appointment_dayofweek`
+* `is_weekend`
+* `time_of_day`
+* `age_group`
 
----
-
-## ⚙️ Feature Engineering
-
-Additional features were created from the existing data:
-
-* Appointment year
-* Appointment month
-* Appointment day
-* Day of week
-* Weekend indicator
-* Time of day
-* Age group
-* Under-12 indicator
-* Over-60 indicator
-* Age-missing indicator
+Categorical variables were encoded using `OneHotEncoder`, while numerical variables were standardized using `StandardScaler`.
 
 ---
 
-## 📈 Exploratory Data Analysis
+## Models Evaluated
 
-EDA was performed to understand relationships between patient, appointment, and weather-related variables and the no-show outcome.
+### Logistic Regression
 
-Key observations included:
+| Metric    |  Score |
+| --------- | -----: |
+| Accuracy  | 63.41% |
+| Precision | 44.30% |
+| Recall    | 58.73% |
+| F1 Score  | 50.51% |
+| ROC-AUC   | 0.6622 |
 
-* No-show rates varied across age groups and specialties.
-* Heat intensity showed noticeable differences in no-show rates.
-* Appointment shift and time of day showed associations with no-shows.
-* SMS receipt had very similar no-show rates for both groups in this dataset.
-* Several medical and demographic variables showed statistically significant associations with the target.
+### Tuned Random Forest
 
-These observations describe associations in the dataset and should not be interpreted as proof of causation.
-
----
-
-## 📊 Statistical Analysis
-
-Chi-square tests were used for categorical variables and Welch's t-test was used for selected numerical variables.
-
-Examples of variables showing statistically significant associations with no-show status included:
-
-* Gender
-* Patient companion requirement
-* Hypertension
-* Diabetes
-* Alcoholism
-* Appointment shift
-* Rain intensity
-* Heat intensity
-* Time of day
-* Age group
-
-Some variables, such as SMS received, Handicap, Scholarship, and appointment day, did not show statistically significant differences in the tests performed.
-
----
-
-## 🤖 Machine Learning
-
-Three classification models were evaluated:
-
-1. Logistic Regression
-2. Random Forest
-3. Tuned Random Forest
-
-### Model Comparison
-
-| Model               | Accuracy | Precision | Recall | F1 Score | ROC-AUC |
-| ------------------- | -------: | --------: | -----: | -------: | ------: |
-| Logistic Regression |   63.41% |    44.30% | 58.73% |   50.51% |  66.22% |
-| Random Forest       |   71.06% |    54.69% | 52.31% |   53.47% |  74.81% |
-| Tuned Random Forest |   70.70% |    53.60% | 58.37% |   55.88% |  73.88% |
-
-The **Tuned Random Forest** was selected as the final model because tuning substantially reduced overfitting while maintaining a useful balance between precision and recall.
-
----
-
-## 🌲 Final Model
-
-The final model is a **Random Forest Classifier** with:
+The final Random Forest model used:
 
 * 150 trees
 * Maximum depth of 12
@@ -148,67 +124,214 @@ The final model is a **Random Forest Classifier** with:
 * Minimum samples leaf of 5
 * Balanced class weights
 
-### Final Test Performance
+| Metric    |  Score |
+| --------- | -----: |
+| Accuracy  | 70.70% |
+| Precision | 53.60% |
+| Recall    | 58.37% |
+| F1 Score  | 55.88% |
+| ROC-AUC   | 0.7388 |
 
-* Accuracy: **70.70%**
-* Precision: **53.60%**
-* Recall: **58.37%**
-* F1 Score: **55.88%**
-* ROC-AUC: **73.88%**
-
-The model uses a classification threshold of **0.50** for the main application.
-
----
-
-## 🧪 Model Prediction
-
-The trained model and preprocessing pipeline were saved using `joblib`.
-
-Files:
-
-* `medical_no_show_model.pkl`
-* `medical_no_show_preprocessor.pkl`
-* `medical_no_show_features.pkl`
-
-The application accepts appointment information and returns:
-
-* Predicted outcome
-* No-show probability
-* Attended probability
+The tuned Random Forest showed a substantially smaller train-test accuracy gap than the original unrestricted Random Forest, reducing overfitting.
 
 ---
 
-## 🖥️ Streamlit Application
+# Business Cases
 
-A Streamlit application was developed to provide an interactive prediction interface.
+The project extends the prediction model into **7 healthcare business use cases**.
 
-The application allows users to enter appointment and patient information and receive a predicted appointment outcome.
+## 1. Risk-Based Patient Engagement
+
+Predicted no-show probabilities were converted into business-defined risk groups.
+
+| Risk Group | Predicted Risk | Observed No-Show Rate | Suggested Action                   |
+| ---------- | -------------- | --------------------: | ---------------------------------- |
+| Low        | <30%           |                 4.27% | Standard reminder                  |
+| Medium     | 30–60%         |                25.56% | SMS reminder + confirmation        |
+| High       | >60%           |                63.48% | Priority SMS + rescheduling option |
+
+These thresholds are business-defined and should be validated using operational outcomes before real-world deployment.
+
+---
+
+## 2. Intelligent Staffing Optimization
+
+Historical appointment volume was analyzed by:
+
+* Day of week
+* Specialty
+* Shift
+* Month
+
+A Holt-Winters time-series model was used to forecast daily appointment volume.
+
+The log-transformed forecasting model achieved:
+
+* **MAE: 4.91**
+* **RMSE: 5.94**
+
+Specialty and shift analysis showed that workload varies considerably across services.
+
+The analysis can support capacity planning while recognizing that actual staffing also depends on appointment duration, specialist availability, patient complexity, and operational constraints.
+
+---
+
+## 3. Revenue Protection
+
+The dataset contained:
+
+* **34,831 no-show appointments**
+* **31.79% overall no-show rate**
+
+The three specialties with the largest number of no-shows were:
+
+* Psychotherapy: 9,263
+* Physiotherapy: 7,218
+* Speech therapy: 6,234
+
+Together they represented **22,715 no-shows**, or **65.21% of all missed appointments**.
+
+Scenario analysis estimated potential recovered appointment capacity under different reductions in no-shows:
+
+| No-show Reduction | Potentially Recovered Appointments |
+| ----------------: | ---------------------------------: |
+|               10% |                              3,483 |
+|               20% |                              6,966 |
+|               30% |                             10,449 |
+
+These are scenario estimates rather than guaranteed financial savings.
+
+---
+
+## 4. Geographic Resource Planning
+
+The `place` field contains a large number of unique location values.
+
+Rather than assuming every unique value represents a city, the analysis treated `place` as a geographic location field.
+
+Among locations with at least 100 appointments, demand was concentrated in a small number of locations.
+
+The three highest-volume locations accounted for:
+
+**32,053 appointments — 29.26% of all appointments.**
+
+This analysis can support geographic resource allocation and identification of locations requiring additional operational attention.
+
+---
+
+## 5. Seasonal & Weather Adaptations
+
+The project examined:
+
+* Monthly no-show rates
+* Rain intensity
+* Heat intensity
+* Previous-day rain
+* Previous-day storms
+
+Overall no-show rate:
+
+**31.79%**
+
+No-show rates were relatively stable across most months, while larger differences were observed across heat-intensity categories.
+
+Chi-square tests found statistically significant associations between no-show status and:
+
+* Rainy day before appointment
+* Storm day before appointment
+* Heat intensity
+
+These findings indicate **associations, not causation**.
+
+---
+
+## 6. Health-Based Segmentation
+
+Health-related variables were analyzed to understand differences in appointment attendance patterns.
+
+The analysis examined:
+
+* Hypertension
+* Diabetes
+* Alcoholism
+* Disability
+* Age groups
+* Companion requirements
+* SMS reminders
+
+Chi-square testing found statistically significant associations between no-show status and:
+
+* Hypertension
+* Diabetes
+* Alcoholism
+
+`Handcap` did not show a statistically significant association in this analysis.
+
+Health-related findings should be used responsibly and should not be used for clinical decisions or discriminatory treatment.
+
+---
+
+## 7. Specialty-Level Demand Planning
+
+Historical appointment demand was analyzed across specialties.
+
+The largest specialty groups were:
+
+| Specialty            | Appointments | Demand Share |
+| -------------------- | -----------: | -----------: |
+| Psychotherapy        |       28,642 |       26.14% |
+| Speech therapy       |       22,321 |       20.37% |
+| Physiotherapy        |       21,001 |       19.17% |
+| Occupational therapy |       11,318 |       10.33% |
+
+Psychotherapy, speech therapy, and physiotherapy together represented:
+
+**65.68% of total historical appointment demand.**
+
+Demand was also compared across morning and afternoon shifts and across 17 months of historical data.
+
+---
+
+# Streamlit Application
+
+A Streamlit application was created to demonstrate individual appointment no-show prediction.
+
+The application loads the saved:
+
+* Random Forest model
+* Preprocessor
+* Feature configuration
+
+and generates a predicted no-show probability and risk category.
 
 ### Run the application
-
-Install the required packages:
-
-```bash
-pip install -r requirements.txt
-```
-
-Run Streamlit:
 
 ```bash
 streamlit run app.py
 ```
 
-The application will open in the browser at the local Streamlit address.
-
 ---
 
-## 📁 Project Structure
+# Repository Structure
 
 ```text
 Medical-Appointment-No-Show/
 │
+├── data/
+│   └── Medical_appointment_data.csv
+│
 ├── notebooks/
-│   └── medical_appointment_no_show.ipynb
+│   ├── medical_appointment_analysis.ipynb
+│   ├── medical_appointment_business_cases.ipynb
+│   │
+│   └── business_cases/
+│       ├── case_1_risk_based_patient_engagement.ipynb
+│       ├── case_2_intelligent_staffing_optimization.ipynb
+│       ├── case_3_revenue_protection.ipynb
+│       ├── case_4_geographic_resource_planning.ipynb
+│       ├── case_5_seasonal_weather_adaptations.ipynb
+│       ├── case_6_health_based_segmentation.ipynb
+│       └── case_7_specialty_level_demand_planning.ipynb
 │
 ├── app.py
 ├── medical_no_show_model.pkl
@@ -221,7 +344,7 @@ Medical-Appointment-No-Show/
 
 ---
 
-## 🛠️ Technologies Used
+# Technologies Used
 
 * Python
 * Pandas
@@ -229,60 +352,82 @@ Medical-Appointment-No-Show/
 * Matplotlib
 * SciPy
 * Scikit-learn
+* Statsmodels
 * Joblib
 * Streamlit
 * Jupyter Notebook
 
 ---
 
-## 📌 Limitations
+# Key Skills Demonstrated
 
-* The model identifies statistical patterns and does not establish causation.
-* Predictions are estimates and are not guaranteed outcomes.
-* The dataset contains missing values and required preprocessing.
-* Some features, such as `place`, had very high cardinality and were excluded from modeling.
-* Model performance may change when applied to a different healthcare population or dataset.
-* The application is intended as a demonstration of a machine learning workflow and should not be used as a standalone clinical decision-making system.
+### Data Analysis
+
+* Data cleaning
+* Missing-value handling
+* Duplicate removal
+* Exploratory Data Analysis
+* Univariate and bivariate analysis
+* GroupBy analysis
+* Feature engineering
+
+### Statistics
+
+* Chi-square hypothesis testing
+* P-values
+* Association analysis
+* Statistical interpretation
+
+### Machine Learning
+
+* Train-test split
+* Stratified sampling
+* One-hot encoding
+* Feature scaling
+* Logistic Regression
+* Random Forest
+* Hyperparameter tuning
+* Class imbalance handling
+* Confusion matrix
+* Precision
+* Recall
+* F1 score
+* ROC-AUC
+* Overfitting analysis
+
+### Time-Series Analysis
+
+* Chronological train-test split
+* Holt-Winters Exponential Smoothing
+* Log transformation
+* MAE
+* RMSE
+* Daily demand forecasting
+
+### Deployment
+
+* Streamlit
+* Saved ML model
+* Saved preprocessing pipeline
+* Prediction interface
 
 ---
 
-## 🚀 Future Improvements
+# Important Limitations
 
-Possible future improvements include:
-
-* Hyperparameter optimization
-* Probability threshold optimization based on the operational objective
-* Additional model comparison
-* Model explainability using SHAP
-* Deployment to a cloud platform
-* Monitoring model performance after deployment
+* The dataset represents a historical period from **2020 to 2021**.
+* Historical patterns may not represent current healthcare demand.
+* The model predicts statistical risk and does not determine why an individual patient may miss an appointment.
+* Weather relationships represent associations rather than causal effects.
+* Health-related variables require careful privacy, fairness, and governance considerations.
+* Revenue loss could not be calculated because appointment prices and actual revenue data were not provided.
+* Geographic analysis is limited by the quality and structure of the `place` field.
+* Staffing recommendations should consider operational factors beyond historical appointment volume.
 
 ---
 
-## 👩‍💻 Project Workflow
+# Conclusion
 
-```text
-Raw Data
-   ↓
-Data Cleaning
-   ↓
-EDA
-   ↓
-Statistical Analysis
-   ↓
-Feature Engineering
-   ↓
-Train/Test Split
-   ↓
-Preprocessing
-   ↓
-Model Training
-   ↓
-Model Evaluation
-   ↓
-Model Tuning
-   ↓
-Model Saving
-   ↓
-Streamlit Deployment
-```
+This project demonstrates an end-to-end Data Science workflow, starting with raw healthcare appointment data and progressing through data preparation, statistical analysis, machine learning, forecasting, business analytics, and deployment.
+
+The seven business cases demonstrate how analytical results can be translated into practical healthcare planning scenarios involving patient engagement, staffing, appointment capacity, geographic resources, weather adaptation, health-based segmentation, and specialty demand planning.
