@@ -1,0 +1,4 @@
+Frequency,Best_Model,MAE,RMSE,MAPE,R2
+Daily,SARIMA,172.25,312.65,82.95,-0.21
+Weekly,Naive,1022.2,1696.3,,-0.38
+Monthly,Naive,2864.5,3507.53,1008.63,0.24
